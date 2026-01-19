@@ -10,15 +10,20 @@
 services:
   server:
     build:
-      context: ..
-      dockerfile: .docker/Dockerfile
+      #context: .
+      dockerfile: Dockerfile
     ports:
       - 9000:80
+    environment:
+      AUTORELOAD_PROGRAMS: "swoole"
+      AUTORELOAD_ANY_FILES: "1"
+    post_start:
+      - command: ["php", "swoole.php"]
   php:
     build: .
     container_name: php-skeleton-7433
-    volumes:
-      - ./src:/var/www/html
+    #volumes:
+    #  - ./src:/var/www/html
     extra_hosts:
       - "host.docker.internal:host-gateway"
 #    ports:
@@ -56,4 +61,3 @@ services:
 # secrets:
 #   db-password:
 #     file: db/password.txt
-

@@ -44,19 +44,32 @@ FROM php:7.4.33-apache
 # https://github.com/docker-library/docs/tree/master/php#configuration
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
+# Set working directory (recommended)
+WORKDIR /var/www/html
+
 # Copy app files from the app directory.
-COPY .. /var/www/html
+COPY . /var/www/html
 
-# Install sudo
-#RUN apt-get update && apt-get install -y sudo
+# START - INSTALL PECL DEPENDENCIES
 
-#RUN sudo whoami
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        zlib1g-dev \
+        libzip-dev \
+        && \
+#   START - PLACE PECL DEPENDENCY INSTALL TO AVOID CONSTANTS DOWNLOADS ON EACH CONTAINER RESTART
+    pecl install channel://pecl.php.net/swoole-4.8.13 xdebug-3.1.6 && \
+    docker-php-ext-enable swoole xdebug && \
+#   END - PLACE PECL DEPENDENCY INSTALL TO AVOID CONSTANTS DOWNLOADS ON EACH CONTAINER RESTART
+    apt-get purge -y zlib1g-dev libzip-dev && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install Xdebug 3
-#RUN sudo chown -R $USER:$USER $(pecl config-get php_dir)
+# END - INSTALL PECL DEPENDENCIES
 
-RUN pecl install xdebug-3.1.6 && \
-    docker-php-ext-enable xdebug
+# START - XDEBUG SETTINGS
+
+#RUN apt-get update && apt-get install -y iproute2   
 
 # Configure Xdebug
 RUN echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
@@ -68,7 +81,7 @@ RUN echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.
     echo "xdebug.idekey=VSCODE" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
     echo "xdebug.discover_client_host=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
-#RUN apt-get update && apt-get install -y iproute2
+# END - XDEBUG SETTINGS
 
 # Switch to a non-privileged user (defined in the base image) that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
