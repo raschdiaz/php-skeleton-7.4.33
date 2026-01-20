@@ -12,22 +12,21 @@ services:
     build:
       #context: .
       dockerfile: Dockerfile
-    ports:
-      - 9000:80
-    environment:
-      AUTORELOAD_PROGRAMS: "swoole"
-      AUTORELOAD_ANY_FILES: "1"
-    post_start:
-      - command: ["php", "swoole.php"]
-  php:
-    build: .
-    container_name: php-skeleton-7433
-    #volumes:
-    #  - ./src:/var/www/html
+    ports: # HOST:CONTAINER
+      - 9000:80 # apache
+      - 9501:9501 # swoole
+    working_dir: /var/www/html
+    restart: always
+    command: ["/bin/bash", "-c", "apache2-foreground & php /var/www/html/swoole.php"]
     extra_hosts:
       - "host.docker.internal:host-gateway"
-#    ports:
-#      - "9003:9003"
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /var/www/html
+          ignore:
+            - .git/
 
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to

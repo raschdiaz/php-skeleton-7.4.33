@@ -6,8 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "docker build -f Dockerfile .",
-    "start": "docker compose -f compose.yaml up",
-    "build-start": "docker compose -f compose.yaml up --build"
+    "start": "docker compose -f up",
+    "build-start": "docker compose -f up --build",
+    "watch": "docker compose watch"
   },
   "repository": {
     "type": "git",

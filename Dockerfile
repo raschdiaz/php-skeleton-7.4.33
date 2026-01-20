@@ -44,11 +44,11 @@ FROM php:7.4.33-apache
 # https://github.com/docker-library/docs/tree/master/php#configuration
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
-# Set working directory (recommended)
-WORKDIR /var/www/html
-
 # Copy app files from the app directory.
-COPY . /var/www/html
+COPY . /var/www/html/
+
+# Set working directory (recommended)
+WORKDIR /var/www/html/
 
 # START - INSTALL PECL DEPENDENCIES
 
@@ -67,6 +67,12 @@ RUN apt-get update && \
 
 # END - INSTALL PECL DEPENDENCIES
 
+# START - SWOOLE SETTINGS
+
+RUN chmod +x swoole.php
+
+# END - SWOOLE SETTINGS
+
 # START - XDEBUG SETTINGS
 
 #RUN apt-get update && apt-get install -y iproute2   
@@ -76,7 +82,7 @@ RUN echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.
     echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
     echo "xdebug.client_port=9003" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
     echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
-    echo "xdebug.log=/var/www/html/xdebug.log" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
+    echo "xdebug.log=/tmp/xdebug.log" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
     echo "xdebug.log_level=7" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
     echo "xdebug.idekey=VSCODE" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini && \
     echo "xdebug.discover_client_host=1" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
