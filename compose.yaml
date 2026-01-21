@@ -17,7 +17,7 @@ services:
       - 9501:9501 # swoole
     working_dir: /var/www/html
     restart: always
-    command: ["/bin/bash", "-c", "apache2-foreground & php /var/www/html/swoole.php"]
+    command: ["/bin/bash", "-c", "apache2-foreground & php /var/www/html/src/swoole.php"]
     extra_hosts:
       - "host.docker.internal:host-gateway"
     develop:
