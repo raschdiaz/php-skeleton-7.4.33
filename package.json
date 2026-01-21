@@ -8,7 +8,7 @@
     "build": "docker build -f Dockerfile .",
     "start": "docker compose -f up",
     "build-start": "docker compose -f up --build",
-    "watch": "docker compose watch",
+    "dev": "docker compose watch",
     "logs": "docker logs php-skeleton-7433-server-1 --follow"
   },
   "repository": {
