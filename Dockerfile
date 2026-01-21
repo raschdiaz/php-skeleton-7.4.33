@@ -91,8 +91,8 @@ RUN echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.
 
 # START - PHP.INI OVERWRITE
 
-RUN chmod +x z-php.ini && mkdir -p /usr/local/etc/php/conf.d/
-COPY z-php.ini /usr/local/etc/php/conf.d/
+RUN chmod +x src/z-php.ini && mkdir -p /usr/local/etc/php/conf.d/
+COPY src/z-php.ini /usr/local/etc/php/conf.d/
 
 #RUN mkdir -p /var/log && chown -R www-data:www-data /var/log && touch /var/log/php-errors.log && chmod 777 /var/log/php-errors.log
 
