@@ -1,7 +1,13 @@
 PHP Skeleton 7.4.33
 
+Set up your .env and .env.prod files (check example.env for reference)
+
 Run project in dev mode: npm run dev
+
+Run project in prod mode: npm run prod
+
 Build project: npm run build
+
 Check project logs: npm run logs
 
 

@@ -6,6 +6,8 @@ openlog("Syslog", LOG_ODELAY | LOG_PERROR, LOG_LOCAL0);
 syslog(LOG_INFO, "Test - Index.php");
 error_log("ErrorLog: Test - Index.php");
 
+echo "Env variable: ENV =".getenv('ENV')."</br>";
+
 echo "INDEX.PHP! testing a11 1";
 echo "2";
 echo "3";

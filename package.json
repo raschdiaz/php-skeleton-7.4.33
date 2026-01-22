@@ -9,7 +9,8 @@
     "start": "docker compose -f up",
     "build-start": "docker compose -f up --build",
     "dev": "docker compose watch",
-    "logs": "docker logs php-skeleton-7433-server-1 --follow"
+    "logs": "docker logs php-skeleton-7433-server-1 --follow",
+    "prod": "docker compose -f compose-prod.yaml up"
   },
   "repository": {
     "type": "git",
