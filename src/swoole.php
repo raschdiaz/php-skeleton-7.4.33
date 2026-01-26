@@ -34,6 +34,15 @@ try {
 
     $server->on("Request", function(Request $request, Response $response)
     {
+        // Polyfill globals for compatibility
+        $_SERVER['REQUEST_URI'] = $request->server['request_uri'];
+        if (isset($request->server['query_string'])) {
+            $_SERVER['REQUEST_URI'] .= '?' . $request->server['query_string'];
+        }
+        $_SERVER['REQUEST_METHOD'] = $request->server['request_method'];
+        $_GET = $request->get ?? [];
+        $_POST = $request->post ?? [];
+
         $response->header("Content-Type", "text/html");
         
         // Capture output from index.php

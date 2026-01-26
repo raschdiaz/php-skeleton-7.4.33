@@ -98,6 +98,18 @@ COPY src/z-php.ini /usr/local/etc/php/conf.d/
 
 # END - PHP.INI OVERWRITE
 
+# START - APACHE OVERWRITE
+
+RUN cp /etc/apache2/mods-available/rewrite.load /etc/apache2/mods-enabled/
+
+# Copy custom configuration
+COPY ./src/000-default.conf /etc/apache2/sites-available/000-default.conf
+
+# Enable the site by creating a symlink (NOT REQUIRED, symlink already created)
+# RUN ln -s /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-enabled/000-default.conf
+
+# END - APACHE OVERWRITE
+
 # Switch to a non-privileged user (defined in the base image) that the app will run under.
 # See https://docs.docker.com/go/dockerfile-user-best-practices/
 USER www-data
