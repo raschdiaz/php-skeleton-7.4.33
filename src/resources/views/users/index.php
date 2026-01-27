@@ -13,9 +13,9 @@
         </tr>
         <?php foreach ($users as $user): ?>
             <tr>
-                <td><?= htmlspecialchars($user['id']) ?></td>
-                <td><?= htmlspecialchars($user['name']) ?></td>
-                <td><?= htmlspecialchars($user['email']) ?></td>
+                <td><?= $user['id'] ?></td>
+                <td><?= $user['name'] ?></td>
+                <td><?= $user['email'] ?></td>
                 <td>
                     <a href='/users/edit/<?= $user['id'] ?>'>Edit</a>
                     <form action='/users/delete' method='POST' style='display:inline;' onsubmit='return confirm("Are you sure?");'>

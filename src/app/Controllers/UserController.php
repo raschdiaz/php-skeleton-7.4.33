@@ -3,14 +3,17 @@
 namespace App\Controllers;
 
 use App\Services\UserService;
+use App\Utils\Utils;
 
 class UserController
 {
     private $userService;
+    private $utils;
 
     public function __construct()
     {
         $this->userService = new UserService();
+        $this->utils = new Utils();
     }
 
     // VIEWS
@@ -18,12 +21,12 @@ class UserController
     public function index()
     {
         $users = $this->userService->getAll();
-        $this->render('users/index', ['users' => $users]);
+        $this->utils->render('users/index', ['users' => $users]);
     }
 
     public function create()
     {
-        $this->render('users/create');
+        $this->utils->render('users/create');
     }
 
     public function edit()
@@ -38,7 +41,7 @@ class UserController
             return;
         }
 
-        $this->render('users/edit', ['user' => $user]);
+        $this->utils->render('users/edit', ['user' => $user]);
     }
 
     // END-POINTS
@@ -70,11 +73,5 @@ class UserController
         echo "<noscript><meta http-equiv='refresh' content='0;url=$url'></noscript>";
     }
 
-    private function render($view, $data = [])
-    {
-        // Makes variables available in the view file (e.g., $users, $user)
-        extract($data);
-        $viewPath = __DIR__ . "/../../resources/views/{$view}.php";
-        require_once $viewPath;
-    }
+    
 }

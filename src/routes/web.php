@@ -1,5 +1,7 @@
 <?php
 
+// Route matching functions
+
 function check_request_pattern($routeUri, $requestUri) {
     $pattern = "@^{$routeUri}$@";
     $pattern = str_replace(':id', '([a-zA-Z0-9\-_]+)', $pattern);
@@ -50,15 +52,15 @@ $routes = [
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 $routeMethod = find_request_route($routes, $uri, $requestMethod);
-if ($routeMethod) {
+if ($routeMethod === false) {
+    // Redirect any non-match request to root path
+    header('Location: /');
+    echo '<meta http-equiv="refresh" content="0;url=/">';
+    echo '<script>window.location.href = "/";</script>';
+} else {
     $method = $routeMethod[0];
     $controller = $routeMethod[1];
     $action = $routeMethod[2];
     $controllerInstance = new $controller();
     $controllerInstance->$action();
-} else {
-    // Redirect any non-match request to root path
-    header('Location: /');
-    echo '<meta http-equiv="refresh" content="0;url=/">';
-    echo '<script>window.location.href = "/";</script>';
 }   

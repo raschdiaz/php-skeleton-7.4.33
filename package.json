@@ -5,12 +5,13 @@
   "main": "info.php",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "docker build -f Dockerfile .",
+    "build-dev": "docker build -f Dockerfile -t php-skeleton-7433 --target=development .",
+    "build-prod": "docker build -f Dockerfile -t php-skeleton-7433 --target=production .",
     "start": "docker compose -f up",
     "build-start": "docker compose -f up --build",
     "dev": "docker compose watch",
     "logs": "docker logs php-skeleton-7433-server-1 --follow",
-    "prod": "docker compose -f compose-prod.yaml up"
+    "prod": "docker compose -f compose.prod.yaml up --build"
   },
   "repository": {
     "type": "git",

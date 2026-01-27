@@ -23,3 +23,11 @@ Verify XDebug installation: php -m | grep xdebug
 Execute any command on running docker container: docker exec <container-name> <command>
 
 Show logs of running container: docker logs <container-name> --follow => docker logs php-skeleton-7433-server-1 --follow
+
+
+
+Useful tips:
+
+PHP Info: echo phpinfo();
+
+XDebug Info: echo xdebug_info();
