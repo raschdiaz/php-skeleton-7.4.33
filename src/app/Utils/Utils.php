@@ -26,4 +26,22 @@ class Utils
         require_once $viewPath;
     }
 
+    // Redirect to a URL
+    public function redirect($url)
+    {
+        // JS redirect is safer here because Swoole output buffering might interfere with headers
+        echo "<script>window.location.href = '$url';</script>";
+        echo "<noscript><meta http-equiv='refresh' content='0;url=$url'></noscript>";
+    }
+
+    public function validateRequiredFields($data, $requiredFields)
+    {
+        $missingFields = [];
+        foreach ($requiredFields as $field) {
+            if (empty($data[$field])) {
+                $missingFields[] = $field;
+            }
+        }
+        return $missingFields;
+    }
 }

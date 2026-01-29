@@ -18,8 +18,7 @@
                 <td><?= $user['email'] ?></td>
                 <td>
                     <a href='/users/edit/<?= $user['id'] ?>'>Edit</a>
-                    <form action='/users/delete' method='POST' style='display:inline;' onsubmit='return confirm("Are you sure?");'>
-                        <input type='hidden' name='id' value='<?= $user['id'] ?>'>
+                    <form class="delete" action="/api/users/<?= $user['id'] ?>" style='display:inline;'>
                         <button type='submit'>Delete</button>
                     </form>
                 </td>
@@ -27,3 +26,46 @@
         <?php endforeach; ?>
     </table>
 <?php endif; ?>
+<script>
+    // You can add JavaScript here if needed
+
+    window.addEventListener('load', function() {
+        console.log('User index page loaded.');
+    });
+
+    document.querySelectorAll('.delete').forEach(element => {
+        element.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            if(confirm("Are you sure?")) {
+
+                console.log('Submitting form via JSON...');
+                fetch(element.action, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                })
+                .then(response => {
+                    console.log('Response status:', response);
+                    if (response.ok) {
+                        //return response.json();
+                    } else {
+                        return response.text().then(text => {
+                            // Error will be handled here as text
+                            throw new Error(text);
+                        });
+                    }
+                })
+                .then(data => {
+                    console.log('Success:', data);
+                    window.location.href = '/users';
+                }).catch((error) => {
+                    console.error(error);
+                });
+
+            }
+            
+        });
+
+    });
+
+</script>

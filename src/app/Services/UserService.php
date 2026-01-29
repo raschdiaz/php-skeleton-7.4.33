@@ -12,7 +12,12 @@ class UserService
     {
         // Use BASE_PATH defined in bootstrap.php, or fallback
         $base = defined('BASE_PATH') ? BASE_PATH : __DIR__ . '/../..';
-        $this->file = $base . '/users.json';
+
+        if (is_writable($base)) {
+            $this->file = $base . '/users.json';
+        } else {
+            $this->file = sys_get_temp_dir() . '/users.json';
+        }
         
         if (!file_exists($this->file)) {
             file_put_contents($this->file, json_encode([]));
@@ -36,7 +41,7 @@ class UserService
         return null;
     }
 
-    public function create($data)
+    public function post($data)
     {
         $users = $this->getAll();
         // Simple auto-increment logic
@@ -50,9 +55,10 @@ class UserService
         
         $users[] = $newUser;
         $this->save($users);
+        return $newUser;
     }
 
-    public function update($id, $data)
+    public function put($id, $data)
     {
         $users = $this->getAll();
         foreach ($users as &$user) {

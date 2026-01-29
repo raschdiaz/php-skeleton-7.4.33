@@ -43,10 +43,20 @@ $routes = [
     ],
     '/api/users/:id' => [
         ['GET', 'App\Controllers\UserController', 'getById'],
-        ['PUT', 'App\Controllers\UserController', 'update'],
+        ['PUT', 'App\Controllers\UserController', 'put'],
         ['DELETE', 'App\Controllers\UserController', 'delete']
     ]
 ];
+
+// Handle JSON body
+$contentType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+if (strpos($contentType, 'application/json') !== false && empty($_POST)) {
+    $input = file_get_contents('php://input');
+    $data = json_decode($input, true);
+    if (is_array($data)) {
+        $_POST = array_merge($_POST, $data);
+    }
+}
 
 // Match request
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

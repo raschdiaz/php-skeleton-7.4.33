@@ -36,8 +36,9 @@ class UserController
         $user = $this->userService->getById($id);
 
         if (!$user) {
-            header("HTTP/1.0 404 Not Found");
-            echo 'User not found. <a href="/users">Go back</a>';
+            //header("HTTP/1.0 404 Not Found");
+            //echo 'User not found. <a href="/users">Go back</a>';
+            $this->utils->redirect('/users');
             return;
         }
 
@@ -46,32 +47,84 @@ class UserController
 
     // END-POINTS
 
-    public function store()
+    public function post()
     {
-        $this->userService->create($_POST);
-        $this->redirect('/users');
+        header('Content-Type: application/json');
+        try {
+
+            $request = $_POST;
+            // Validate required fields
+            $requiredFields = ['name', 'email'];
+            $validateRequiredFields = $this->utils->validateRequiredFields($request, $requiredFields);
+            if (!empty($validateRequiredFields)) {
+                header("HTTP/1.0 400 Bad Request");
+                echo json_encode(['error' => 'Missing required fields: ' . implode(', ', $validateRequiredFields)]);
+                return;
+            }
+            echo json_encode($this->userService->post($request));
+            return;
+        } catch (\Throwable $th) {
+            header("HTTP/1.0 500 Internal Server Error");
+            echo json_encode(['error' => 'An error occurred: ' . $th->getMessage()]);
+        }
     }
 
-    public function update()
+    public function getById()
     {
-        $id = $_POST['id'];
-        $this->userService->update($id, $_POST);
-        $this->redirect('/users');
+        header('Content-Type: application/json');
+        try {
+            $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            $id = substr($uri, strrpos($uri, '/') + 1);
+            $user = $this->userService->getById($id);
+            if (!$user) {
+                header("HTTP/1.0 404 Not Found");
+                echo json_encode(['error' => 'User not found']);
+                return;
+            }
+            echo json_encode($user);
+            return;
+        } catch (\Throwable $th) {
+            header("HTTP/1.0 500 Internal Server Error");
+            echo json_encode(['error' => 'An error occurred: ' . $th->getMessage()]);
+        }
+    }
+
+    public function put()
+    {
+        header('Content-Type: application/json');
+        try {
+            $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            $id = substr($uri, strrpos($uri, '/') + 1);
+            $request = $_POST;
+            // Validate required fields
+            $requiredFields = ['name', 'email'];
+            $validateRequiredFields = $this->utils->validateRequiredFields($request, $requiredFields);
+            if (!empty($validateRequiredFields)) {
+                header("HTTP/1.0 400 Bad Request");
+                echo json_encode(['error' => 'Missing required fields: ' . implode(', ', $validateRequiredFields)]);
+                return;
+            }
+            echo json_encode($this->userService->put($id, $request));
+            return;
+        } catch (\Throwable $th) {
+            header("HTTP/1.0 500 Internal Server Error");
+            echo json_encode(['error' => 'An error occurred: ' . $th->getMessage()]);
+        }
     }
 
     public function delete()
     {
-        $id = $_POST['id'];
-        $this->userService->delete($id);
-        $this->redirect('/users');
+        header('Content-Type: application/json');
+        try {
+            $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            $id = substr($uri, strrpos($uri, '/') + 1);
+            $this->userService->delete($id);
+            header("HTTP/1.0 204 No Content");
+            return;
+        } catch (\Throwable $th) {
+            header("HTTP/1.0 500 Internal Server Error");
+            echo json_encode(['error' => 'An error occurred: ' . $th->getMessage()]);
+        }
     }
-
-    private function redirect($url)
-    {
-        // JS redirect is safer here because Swoole output buffering might interfere with headers
-        echo "<script>window.location.href = '$url';</script>";
-        echo "<noscript><meta http-equiv='refresh' content='0;url=$url'></noscript>";
-    }
-
     
 }

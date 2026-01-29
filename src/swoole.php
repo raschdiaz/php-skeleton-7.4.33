@@ -43,6 +43,16 @@ try {
         $_GET = $request->get ?? [];
         $_POST = $request->post ?? [];
 
+        // Handle JSON body
+        if (isset($request->header['content-type']) && strpos($request->header['content-type'], 'application/json') !== false) {
+            $_SERVER['CONTENT_TYPE'] = $request->header['content-type'];
+            $input = $request->rawContent();
+            $data = json_decode($input, true);
+            if (is_array($data)) {
+                $_POST = array_merge($_POST, $data);
+            }
+        }
+
         $response->header("Content-Type", "text/html");
         
         // Capture output from index.php
