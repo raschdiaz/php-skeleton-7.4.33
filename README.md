@@ -16,13 +16,16 @@ Commands:
 
 Init Docker: docker init
 
-Run Docker: docker compose -f .docker/compose.yaml up --build
+Run Docker (Dev): docker compose -f compose.yaml up --build
+Run Docker (Dev) Alternative: docker compose watch 
+
+Run Docker (Prod): docker compose -f compose.prod.yaml up --build -d
 
 Verify XDebug installation: php -m | grep xdebug
 
 Execute any command on running docker container: docker exec <container-name> <command>
 
-Show logs of running container: docker logs <container-name> --follow => docker logs php-skeleton-7433-server-1 --follow
+Show logs of running container: docker logs <container-name> --follow => docker logs php-skeleton-7433-web-1 --follow
 
 
 
@@ -31,3 +34,7 @@ Useful tips:
 PHP Info: echo phpinfo();
 
 XDebug Info: echo xdebug_info();
+
+Web (Apache): Accessible at http://localhost:9000
+
+Swoole: Accessible at http://localhost:9501

@@ -8,16 +8,14 @@
 # database or a cache. For examples, see the Awesome Compose repository:
 # https://github.com/docker/awesome-compose
 services:
-  server:
+  web:
     build:
       #context: .
       dockerfile: Dockerfile
     ports: # HOST:CONTAINER
       - 9000:80 # apache
-      - 9501:9501 # swoole
     working_dir: /var/www/html
     restart: always
-    command: ["/bin/bash", "-c", "apache2-foreground & php /var/www/html/src/swoole.php"]
     extra_hosts:
       - "host.docker.internal:host-gateway"
     develop:
@@ -31,6 +29,28 @@ services:
           path: .env
     #environment:
     #  ENV: ${ENV}
+    env_file:
+      - .env
+
+  swoole:
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - 9501:9501 # swoole
+    working_dir: /var/www/html
+    restart: always
+    command: ["php", "/var/www/html/src/swoole.php"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /var/www/html
+          ignore:
+            - .git/
+        - action: rebuild
+          path: .env
     env_file:
       - .env
 
