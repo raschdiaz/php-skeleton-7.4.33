@@ -1,15 +1,17 @@
 PHP Skeleton 7.4.33
 
-Set up your .env and .env.prod files (check example.env for reference)
+Instructions to run the project:
 
-Run project in dev mode: npm run dev
+- Install docker desktop app.
 
-Run project in prod mode: npm run prod
+- Set up your .env and .env.prod files (check example.env for reference)
 
-Build project: npm run build
+- Run project in dev mode: npm run dev
 
-Check project logs: npm run logs
+- Run project in prod mode: npm run prod
 
+Web (Apache): Accessible at http://localhost:9000
+Swoole: Accessible at http://localhost:9501
 
 
 Commands:
@@ -21,6 +23,10 @@ Run Docker (Dev) Alternative: docker compose watch
 
 Run Docker (Prod): docker compose -f compose.prod.yaml up --build -d
 
+Build project: npm run build
+
+Check project logs: npm run logs
+
 Verify XDebug installation: php -m | grep xdebug
 
 Execute any command on running docker container: docker exec <container-name> <command>
@@ -28,13 +34,8 @@ Execute any command on running docker container: docker exec <container-name> <c
 Show logs of running container: docker logs <container-name> --follow => docker logs php-skeleton-7433-web-1 --follow
 
 
-
 Useful tips:
 
 PHP Info: echo phpinfo();
 
 XDebug Info: echo xdebug_info();
-
-Web (Apache): Accessible at http://localhost:9000
-
-Swoole: Accessible at http://localhost:9501

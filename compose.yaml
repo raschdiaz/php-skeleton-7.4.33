@@ -10,8 +10,9 @@
 services:
   web:
     build:
-      #context: .
+      context: .
       dockerfile: Dockerfile
+      target: development
     ports: # HOST:CONTAINER
       - 9000:80 # apache
     working_dir: /var/www/html
@@ -34,7 +35,9 @@ services:
 
   swoole:
     build:
+      context: .
       dockerfile: Dockerfile
+      target: development
     ports:
       - 9501:9501 # swoole
     working_dir: /var/www/html
