@@ -26,8 +26,8 @@
 openlog("Syslog", LOG_ODELAY | LOG_PERROR, LOG_LOCAL0);
 
 # Execute log
-syslog(LOG_INFO, "Test - Index.php");
-error_log("ErrorLog: Test - Index.php");
+//syslog(LOG_INFO, "Test - Index.php");
+//error_log("ErrorLog: Test - Index.php");
 
 // Load routes
 require_once __DIR__ . '/../routes/web.php';

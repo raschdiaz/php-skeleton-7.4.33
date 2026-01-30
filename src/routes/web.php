@@ -2,18 +2,20 @@
 
 // Route matching functions
 
-function check_request_pattern($routeUri, $requestUri) {
-    $pattern = "@^{$routeUri}$@";
-    $pattern = str_replace(':id', '([a-zA-Z0-9\-_]+)', $pattern);
-    return preg_match($pattern, $requestUri);
-}
-
 function find_request_route($routes, $requestUri, $requestMethod) {
     foreach ($routes as $routeUri => $routeMethods) {
-        if (check_request_pattern($routeUri, $requestUri)) {
+        // Convert route URI to a regex pattern
+        $pattern = "@^" . preg_replace('/:\w+/', '([a-zA-Z0-9\-_]+)', $routeUri) . "$@";
+
+        // Check if the request URI matches the pattern
+        if (preg_match($pattern, $requestUri, $matches)) {
+            // Remove the full match from the beginning of the array
+            array_shift($matches);
+            $params = $matches;
+
             foreach ($routeMethods as $method) {
                 if ($method[0] == $requestMethod) {
-                    return $method;
+                    return [$method, $params];
                 }
             }
         }
@@ -61,16 +63,24 @@ if (strpos($contentType, 'application/json') !== false && empty($_POST)) {
 // Match request
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $requestMethod = $_SERVER['REQUEST_METHOD'];
-$routeMethod = find_request_route($routes, $uri, $requestMethod);
-if ($routeMethod === false) {
+$routeInfo = find_request_route($routes, $uri, $requestMethod);
+if ($routeInfo === false) {
     // Redirect any non-match request to root path
     header('Location: /');
     echo '<meta http-equiv="refresh" content="0;url=/">';
     echo '<script>window.location.href = "/";</script>';
 } else {
+    list($routeMethod, $params) = $routeInfo;
     $method = $routeMethod[0];
     $controller = $routeMethod[1];
     $action = $routeMethod[2];
     $controllerInstance = new $controller();
-    $controllerInstance->$action();
+    // Log request api details
+    if (strpos($uri, '/api/') === 0) {
+        syslog(LOG_INFO, "Request API URL: " . $method . " " . $uri . " -> " . $controller . "@" . $action . "() with POST data: " . json_encode($_POST));
+    }
+    // Log request web details
+    //syslog(LOG_INFO, "Request URL: " . $method . " " . $uri . " -> " . $controller . "@" . $action . "() with POST data: " . json_encode($_POST));
+    // Call the controller action with the extracted parameters
+    call_user_func_array([$controllerInstance, $action], $params);
 }   

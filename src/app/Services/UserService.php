@@ -61,14 +61,17 @@ class UserService
     public function put($id, $data)
     {
         $users = $this->getAll();
+        $foundUser = false;
         foreach ($users as &$user) {
             if ($user['id'] == $id) {
                 $user['name'] = $data['name'];
                 $user['email'] = $data['email'];
+                $foundUser = $user;
                 break;
             }
         }
         $this->save($users);
+        return $foundUser;
     }
 
     public function delete($id)

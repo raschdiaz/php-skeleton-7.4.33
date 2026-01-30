@@ -4,16 +4,19 @@ namespace App\Controllers;
 
 use App\Services\UserService;
 use App\Utils\Utils;
+use App\Utils\JsonResponse;
 
 class UserController
 {
     private $userService;
     private $utils;
+    private $jsonResponse;
 
     public function __construct()
     {
         $this->userService = new UserService();
         $this->utils = new Utils();
+        $this->jsonResponse = new JsonResponse();
     }
 
     // VIEWS
@@ -29,19 +32,15 @@ class UserController
         $this->utils->render('users/create');
     }
 
-    public function edit()
+    public function edit($id)
     {
-        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-        $id = substr($uri, strrpos($uri, '/') + 1);
         $user = $this->userService->getById($id);
-
         if (!$user) {
             //header("HTTP/1.0 404 Not Found");
             //echo 'User not found. <a href="/users">Go back</a>';
             $this->utils->redirect('/users');
             return;
         }
-
         $this->utils->render('users/edit', ['user' => $user]);
     }
 
@@ -49,82 +48,77 @@ class UserController
 
     public function post()
     {
-        header('Content-Type: application/json');
         try {
-
             $request = $_POST;
-            // Validate required fields
-            $requiredFields = ['name', 'email'];
-            $validateRequiredFields = $this->utils->validateRequiredFields($request, $requiredFields);
-            if (!empty($validateRequiredFields)) {
-                header("HTTP/1.0 400 Bad Request");
-                echo json_encode(['error' => 'Missing required fields: ' . implode(', ', $validateRequiredFields)]);
+            if (!$this->validate($request)) {
                 return;
             }
-            echo json_encode($this->userService->post($request));
+            $this->jsonResponse->response($this->userService->post($request), JsonResponse::HTTP_OK);
             return;
         } catch (\Throwable $th) {
-            header("HTTP/1.0 500 Internal Server Error");
-            echo json_encode(['error' => 'An error occurred: ' . $th->getMessage()]);
+            $this->jsonResponse->response(['error' => 'An error occurred: ' . $th->getMessage()], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+            return;
         }
     }
 
-    public function getById()
+    public function getById($id)
     {
-        header('Content-Type: application/json');
         try {
-            $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-            $id = substr($uri, strrpos($uri, '/') + 1);
             $user = $this->userService->getById($id);
             if (!$user) {
-                header("HTTP/1.0 404 Not Found");
-                echo json_encode(['error' => 'User not found']);
+                $this->jsonResponse->response(['error' => 'User not found'], JsonResponse::HTTP_NOT_FOUND);
                 return;
             }
-            echo json_encode($user);
+            $this->jsonResponse->response($user, JsonResponse::HTTP_OK);
             return;
         } catch (\Throwable $th) {
-            header("HTTP/1.0 500 Internal Server Error");
-            echo json_encode(['error' => 'An error occurred: ' . $th->getMessage()]);
+            $this->jsonResponse->response(['error' => 'An error occurred: ' . $th->getMessage()], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+            return;
         }
     }
 
-    public function put()
+    public function put($id)
     {
-        header('Content-Type: application/json');
         try {
-            $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-            $id = substr($uri, strrpos($uri, '/') + 1);
             $request = $_POST;
-            // Validate required fields
-            $requiredFields = ['name', 'email'];
-            $validateRequiredFields = $this->utils->validateRequiredFields($request, $requiredFields);
-            if (!empty($validateRequiredFields)) {
-                header("HTTP/1.0 400 Bad Request");
-                echo json_encode(['error' => 'Missing required fields: ' . implode(', ', $validateRequiredFields)]);
+            if (!$this->validate($request)) {
                 return;
             }
-            echo json_encode($this->userService->put($id, $request));
+            $updatedUser = $this->userService->put($id, $request);
+
+            if (!$updatedUser) {
+                $this->jsonResponse->response(['error' => 'User not found to update'], JsonResponse::HTTP_NOT_FOUND);
+                return;
+            }
+            $this->jsonResponse->response($updatedUser, JsonResponse::HTTP_OK);
             return;
         } catch (\Throwable $th) {
-            header("HTTP/1.0 500 Internal Server Error");
-            echo json_encode(['error' => 'An error occurred: ' . $th->getMessage()]);
+            $this->jsonResponse->response(['error' => 'An error occurred: ' . $th->getMessage()], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+            return;
         }
     }
 
-    public function delete()
+    public function delete($id)
     {
-        header('Content-Type: application/json');
         try {
-            $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-            $id = substr($uri, strrpos($uri, '/') + 1);
             $this->userService->delete($id);
-            header("HTTP/1.0 204 No Content");
+            $this->jsonResponse->response(null, JsonResponse::HTTP_NO_CONTENT);
             return;
         } catch (\Throwable $th) {
-            header("HTTP/1.0 500 Internal Server Error");
-            echo json_encode(['error' => 'An error occurred: ' . $th->getMessage()]);
+            $this->jsonResponse->response(['error' => 'An error occurred: ' . $th->getMessage()], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+            return;
         }
+    }
+
+    private function validate($data)
+    {
+        $requiredFields = ['name', 'email'];
+        $missingFields = $this->utils->validateRequiredFields($data, $requiredFields);
+        if (!empty($missingFields)) {
+            $this->jsonResponse->response(['error' => 'Missing required fields: ' . implode(', ', $missingFields)], JsonResponse::HTTP_BAD_REQUEST);
+            return false;
+        }
+        return true;
     }
     
 }
