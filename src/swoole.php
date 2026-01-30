@@ -70,35 +70,54 @@ try {
 
     // Watch for file changes and restart the server
     $server->addProcess(new Process(function($process) use ($server) {
-        $files = [
-            __FILE__ => 'shutdown', // Hard restart for server config
-            __DIR__ => 'reload', // Soft reload for app logic
-        ];
+        $scanDir = __DIR__;
         
+        $getPhpFiles = function($dir) {
+            $files = [];
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($dir, RecursiveDirectoryIterator::SKIP_DOTS)
+            );
+            foreach ($iterator as $file) {
+                if ($file->isFile() && $file->getExtension() === 'php') {
+                    $files[] = $file->getPathname();
+                }
+            }
+            return $files;
+        };
+
         $last_mtimes = [];
-        foreach ($files as $f => $act) {
-            $last_mtimes[$f] = file_exists($f) ? filemtime($f) : 0;
+        foreach ($getPhpFiles($scanDir) as $file) {
+            $last_mtimes[$file] = filemtime($file);
         }
 
-        console_log("Watcher process started.");
+        console_log("Watcher process started. Monitoring: $scanDir");
 
         while (true) {
             sleep(1);
             clearstatcache();
-            foreach ($files as $f => $act) {
-                if (!file_exists($f)) continue;
-                $mtime = filemtime($f);
-                if ($mtime === false) continue;
+            
+            $currentFiles = $getPhpFiles($scanDir);
+            
+            foreach ($currentFiles as $file) {
+                $mtime = filemtime($file);
                 
-                if (($last_mtimes[$f] ?? 0) === 0) {
-                    $last_mtimes[$f] = $mtime;
+                if (!isset($last_mtimes[$file])) {
+                    $last_mtimes[$file] = $mtime;
+                    console_log("New file detected: " . basename($file));
+                    $server->reload();
                     continue;
                 }
-                if ($mtime > $last_mtimes[$f]) {
-                    console_log("File changed: " . basename($f) . " -> $act");
-                    $last_mtimes[$f] = $mtime;
-                    $server->$act();
-                    if ($act === 'shutdown') break 2;
+
+                if ($mtime > $last_mtimes[$file]) {
+                    $last_mtimes[$file] = $mtime;
+                    if ($file === __FILE__) {
+                        console_log("Config changed: " . basename($file) . " -> shutdown");
+                        $server->shutdown();
+                        break 2;
+                    } else {
+                        console_log("File changed: " . basename($file) . " -> reload");
+                        $server->reload();
+                    }
                 }
             }
         }

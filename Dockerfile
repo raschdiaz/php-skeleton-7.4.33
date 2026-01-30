@@ -19,7 +19,7 @@ RUN apt-get update && \
 # END - INSTALL PECL DEPENDENCIES
 
 # Copy app files from the app directory.
-COPY . /var/www/html/
+COPY --chown=www-data:www-data . /var/www/html/
 
 # Set working directory (recommended)
 WORKDIR /var/www/html/
