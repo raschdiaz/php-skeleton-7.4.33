@@ -30,7 +30,7 @@
     // You can add JavaScript here if needed
 
     window.addEventListener('load', function() {
-        console.log('User index page loaded.');
+        //console.log('User index page loaded.');
     });
 
     document.querySelectorAll('.delete').forEach(element => {
@@ -44,17 +44,7 @@
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' }
                 })
-                .then(response => {
-                    console.log('Response status:', response);
-                    if (response.ok) {
-                        //return response.json();
-                    } else {
-                        return response.text().then(text => {
-                            // Error will be handled here as text
-                            throw new Error(text);
-                        });
-                    }
-                })
+                .then(mapHttpResponse) // Custom global function to map HTTP response
                 .then(data => {
                     console.log('Success:', data);
                     window.location.href = '/users';

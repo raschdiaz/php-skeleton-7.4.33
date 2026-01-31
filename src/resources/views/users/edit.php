@@ -41,7 +41,7 @@
             body: json,
             headers: { 'Content-Type': 'application/json' }
         })
-        .then(response => response.text())
+        .then(mapHttpResponse) // Custom global function to map HTTP response
         .then(data => {
             console.log('Success:', data);
             window.location.href = '/users';
